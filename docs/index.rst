@@ -78,7 +78,6 @@ Future plans
 
  * Brute force lockouts
  * Timeout
- * Autocomplete=off
  * User registration
  * User management
  * Forgotten password

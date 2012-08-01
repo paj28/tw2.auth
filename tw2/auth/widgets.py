@@ -114,6 +114,7 @@ class Login(twf.FormPage):
     _no_autoid = True
 
     class child(twf.TableForm):
+        attrs = {'autocomplete': 'false'}
         validator = LoginValidator()
         user_name = twf.TextField()
         password = twf.PasswordField()
