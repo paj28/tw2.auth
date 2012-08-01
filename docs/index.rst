@@ -16,6 +16,8 @@ http://github.com/paj28/tw2.core
 
 Add the following to your model::
 
+    import tw2.auth as twa
+
     class Session(Base):
         __tablename__ = 'session'
         id = sa.Column(sa.String(), primary_key=True)
@@ -32,15 +34,15 @@ Add the following to your model::
 
 Your controller should look something like::
 
-    import tw2.core as twc, tw2.auth as twa, model as db
+    import tw2.core as twc, tw2.auth as twa
     
     class Unauth(twc.Directory):
         login = twa.Login()
-        # your unprotected controller methods here
+        # your unprotected widgets go here
 
     class Auth(twc.Directory):
         auth_check = twa.check_session
-        # your protected controller methods here
+        # your protected widgets go here
         change_password = twa.ChangePassword()
         logout = twa.Logout()
 
@@ -53,6 +55,8 @@ To create a user, use interactive Python::
 
     >>> import myapp.model as db, tw2.auth as twa
     >>> twa.add_user('admin', 'password')
+
+Inside a controller widget, you can access the current session or user with `twa.get_session()` and `twa.get_user()`.
 
 
 Configuration
@@ -76,6 +80,9 @@ Future plans
  * Timeout
  * Autocomplete=off
  * User registration
+ * User management
  * Forgotten password
  * Password strength validation
  * Authorization using groups
+ * Zero shared state mode - cryptographic session id, instead of database table
+
