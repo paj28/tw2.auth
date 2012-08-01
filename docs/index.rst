@@ -16,13 +16,13 @@ http://github.com/paj28/tw2.core
 
 Add the following to your model::
 
-    import tw2.auth as twa
+    import sqlalchemy as sa, tw2.auth as twa
 
     class Session(Base):
         __tablename__ = 'session'
         id = sa.Column(sa.String(), primary_key=True)
-        user_name = sa.Column(sa.String(), sa.ForeignKey('users.user_name'))
-        user = sao.relationship('User')
+        user_name = sa.Column(sa.String(), sa.ForeignKey('user.name'))
+        user = sa.orm.relationship('User')
     
     class User(Base):
         __tablename__ = 'user'
@@ -78,11 +78,14 @@ Configuration
 Future plans
 ------------
 
- * Brute force lockouts
+ * Account lockouts - Captcha
  * Timeout
  * User registration
- * User management
+ * User management - needs concept of administrator
  * Forgotten password
  * Password strength validation
  * Authorization using groups
  * Zero shared state mode - cryptographic session id, instead of database table
+ * CSRF protection
+ * Social login
+ * Better logging

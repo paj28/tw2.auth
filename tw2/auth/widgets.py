@@ -1,4 +1,4 @@
-import tw2.forms as twf, tw2.core as twc, webob, os, PBKDF2 as pbkdf2
+import tw2.forms as twf, tw2.core as twc, webob, os, PBKDF2 as pbkdf2, logging, time
 
 
 @staticmethod
@@ -59,6 +59,16 @@ class config(object):
     `cookie_options`
         Cookie options. For SSL connections, recommended is {'secure':True, 'httponly':True}
         (default: {'httponly':True})
+        
+    `pwfail_limit`
+        The number of failed logins that will cause account lockout. If this is None, account
+        lockout is disabled. To use this, the user_object must have pwfail_lockout and
+        pwfail_last fields.
+        (default: None)
+        
+    `pwfail_lockout_time`
+        When pwfail_limit is hit, how long is the lockout? This is in seconds.
+        (default: 60)
     """    
         
     user_name_field = 'name'
@@ -71,6 +81,8 @@ class config(object):
     post_logout = dict(status=302, location='/login')
     cookie_name = 'tw2.auth'
     cookie_options = {'httponly': True}
+    pwfail_limit = None
+    pwfail_lockout_time = 60
 
 
 @classmethod
@@ -97,6 +109,25 @@ def add_user(user_name, password, **options):
     config.user_object(**kw)
     config.user_object.query.session.commit()
 
+def check_password(user, password):
+    if config.pwfail_limit and user.pwfail_count >= config.pwfail_limit:
+        if time.time() - user.pwfail_last > config.pwfail_lockout_time:
+            user.pwfail_count = 0
+        else:
+            logging.info("user is locked out: " + unicode(user))
+            return False
+    if config.verify(password, getattr(user, config.password_field)):
+        if config.pwfail_limit:
+            user.pwfail_count = 0
+        logging.info("successful login for: " + unicode(user))
+        return True
+    else:
+        if config.pwfail_limit:
+            user.pwfail_count = (user.pwfail_count or 0) + 1
+            user.pwfail_last = int(time.time())
+        logging.info("bad password for: " + unicode(user))
+        return False
+
 
 class LoginValidator(twc.Validator):
     msgs = {
@@ -104,10 +135,13 @@ class LoginValidator(twc.Validator):
     }
     def validate_python(self, value, state=None):
         user = config.user_object.query.filter_by(**{config.user_name_field: value['user_name']}).first()
-        if user and config.verify(value['password'], getattr(user, config.password_field)):
+        if not user:
+            logging.info("user does not exist: " + value['user_name']) # TBD: allows dangerous log pollution
+            raise twc.ValidationError('badlogin', self)
+        if check_password(user, value['password']):
             value['user'] = user
-            return
-        raise twc.ValidationError('badlogin', self)
+        else:
+            raise twc.ValidationError('badlogin', self)        
 
 
 class Login(twf.FormPage):
@@ -135,7 +169,7 @@ class PasswordValidator(twc.Validator):
         'badpassword': 'Incorrect password',
     }
     def validate_python(self, value, state=None):
-        if config.verify(value, getattr(get_user(), config.password_field)):
+        if check_password(get_user(), value):
             return
         raise twc.ValidationError('badpassword', self)
 
@@ -145,6 +179,7 @@ class ChangePassword(twf.FormPage):
     _no_autoid = True
 
     class child(twf.TableForm):
+        attrs = {'autocomplete': 'false'}
         current_password = twf.PasswordField(validator=PasswordValidator())
         new_password = twf.PasswordField(validator=twc.Required)
         confirm_password = twf.PasswordField(validator=twc.MatchValidator(other_field='new_password'))
