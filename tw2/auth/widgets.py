@@ -84,10 +84,11 @@ def check_session(cls, req):
 
 
 def get_session():
-    return twc.core.request_local()['session']
+    return twc.core.request_local().get('session')
 
 def get_user():
-    return getattr(get_session(), config.user_relation)
+    session = get_session()
+    return session and getattr(session, config.user_relation)
 
 def add_user(user_name, password, **options):
     kw = dict(options)
