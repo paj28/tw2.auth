@@ -117,6 +117,7 @@ class Login(twf.FormPage):
         validator = LoginValidator()
         user_name = twf.TextField()
         password = twf.PasswordField()
+        submit = twf.SubmitButton(value='Login')
 
     @classmethod
     def validated_request(cls, req, data):
