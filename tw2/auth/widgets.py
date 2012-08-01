@@ -20,7 +20,7 @@ class config(object):
 
     `user_name_field`
         The field on the user_object for the user name.
-        (default: 'user_name')
+        (default: 'name')
     
     `password_field`
         The field on the user_object for the hashed password.
@@ -61,7 +61,7 @@ class config(object):
         (default: {'httponly':True})
     """    
         
-    user_name_field = 'user_name'
+    user_name_field = 'name'
     password_field = 'password'
     sid_field = 'id'
     user_relation = 'user'

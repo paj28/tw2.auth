@@ -26,8 +26,10 @@ Add the following to your model::
     
     class User(Base):
         __tablename__ = 'user'
-        user_name = sa.Column(sa.String(), primary_key=True)
+        name = sa.Column(sa.String(), primary_key=True)
         password = sa.Column(sa.String())
+        def __unicode__(self):
+            return self.name
 
     twa.config.session_object = Session
     twa.config.user_object = User
@@ -84,4 +86,3 @@ Future plans
  * Password strength validation
  * Authorization using groups
  * Zero shared state mode - cryptographic session id, instead of database table
-
