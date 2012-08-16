@@ -78,14 +78,19 @@ Configuration
 Future plans
 ------------
 
- * Account lockouts - Captcha
+ * CSRF protection
  * Timeout
- * User registration
+ * Authorization using groups
+ * User registration - potentially with handoff to payment processor
  * User management - needs concept of administrator
  * Forgotten password
- * Password strength validation
- * Authorization using groups
- * Zero shared state mode - cryptographic session id, instead of database table
- * CSRF protection
- * Social login
+ * Password strength validation - ideally, using JavaScript
  * Better logging
+ * Fix timing attack on login - leaks user existence
+
+ * Password aging
+ * Account lockouts - Captcha
+ * Zero shared state mode - cryptographic session id, instead of database table
+ * Social login - perhaps using http://pypi.python.org/pypi/ao.social/1.0.2 or http://pypi.python.org/pypi/django-social-auth/ or maybe LoginRadius (managed service)
+ * User self-management of sessions; record login time & IP address on session?
+ * Stronger authentication, e.g. device fingerprint, integration with Yubikey, EDCC, restrict login to list of IPs

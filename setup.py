@@ -9,6 +9,7 @@ except Exception:
 
 requires = [
     "tw2.sqla",
+    "pbkdf2",
 ]
 
 setup(

@@ -1,4 +1,4 @@
-import tw2.forms as twf, tw2.core as twc, webob, os, PBKDF2 as pbkdf2, logging, time
+import tw2.forms as twf, tw2.core as twc, webob, os, pbkdf2, logging, time
 
 
 @staticmethod
@@ -63,13 +63,14 @@ class config(object):
     `pwfail_limit`
         The number of failed logins that will cause account lockout. If this is None, account
         lockout is disabled. To use this, the user_object must have pwfail_lockout and
-        pwfail_last fields.
+        pwfail_last fields. It is recommended to enable this, to protect against password
+        brute force attacks.
         (default: None)
         
     `pwfail_lockout_time`
         When pwfail_limit is hit, how long is the lockout? This is in seconds.
         (default: 60)
-    """    
+    """
         
     user_name_field = 'name'
     password_field = 'password'
@@ -157,6 +158,7 @@ class Login(twf.FormPage):
 
     @classmethod
     def validated_request(cls, req, data):
+        # TBD: if there is an existing session in a cookie, terminate that session
         sid = os.urandom(16).encode('hex')
         config.session_object(**{config.sid_field: sid, config.user_relation:data['user']})
         res = webob.Response(**config.post_login)
