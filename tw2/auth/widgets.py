@@ -88,11 +88,14 @@ class config(object):
 
 @classmethod
 def check_session(cls, req):
+    rl = twc.core.request_local()
+    if 'session' in rl:
+        return rl['session']
     sid = req.cookies.get(config.cookie_name)
     if not sid:
         return False
     session = config.session_object.query.get(sid)    
-    twc.core.request_local()['session'] = session
+    rl['session'] = session
     return session
 
 
