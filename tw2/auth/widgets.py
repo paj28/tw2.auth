@@ -91,6 +91,8 @@ def check_session(cls, req):
     rl = twc.core.request_local()
     if 'session' in rl:
         return rl['session']
+    if not req:
+        return False
     sid = req.cookies.get(config.cookie_name)
     if not sid:
         return False
