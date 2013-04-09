@@ -88,6 +88,9 @@ class config(object):
 
 @classmethod
 def check_session(cls, req):
+    return x_check_session(cls, req)
+
+def x_check_session(cls, req):
     rl = twc.core.request_local()
     if 'session' in rl:
         return rl['session']
